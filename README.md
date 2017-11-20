@@ -1,4 +1,6 @@
 # WiFi-Modbus-TCPtoRTU
+
+NOTE: ACTUALLY, THIS IS A RAW "GOOGLE" TRANSLATION FROM CYRILIC TO ENGLISH!!
 WiFi ESP8266 gateway Modbus TCP to Modbus RTU 
 
 The task:
