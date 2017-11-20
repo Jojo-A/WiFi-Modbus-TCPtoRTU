@@ -17,7 +17,7 @@ cTcpSlave::~cTcpSlave()
 
 void cTcpSlave::waitNewClient(void)
 {
-   // смотри на живы ли старые клиенты если не живой то освобождаем сонект
+   // see if the old customers are alive if not alive then release them
    for (uint8_t i = 0 ; i < 4; i++)
    {
       if (clientOnLine[i].onLine && !clientOnLine[i].client.connected())
@@ -45,7 +45,7 @@ void cTcpSlave::waitNewClient(void)
            break;
        }
      }
-     if (!clientReg) // Tесли не нашлось места новому клиенту
+     if (!clientReg) // If there was no place for a new client
      {
        clientOnLine[0].client.stop();
        clientOnLine[0].client = mbServer.available();
@@ -81,11 +81,11 @@ void cTcpSlave::readFrameClient(WiFiClient client, uint8_t nClient)
   //  trace.println(String("Paket in : len data ") + String(len) +
   //  "Len pak " + String(mbap._len) + ", TI " + String(mbap._ti));
 
-    // проверка на склеенные запросы. (мастера бывают запрашивают по 4 запроса)
+    // checking for glued requests. (wizards are requested for 4 requests)
     while((count < len ) && ((len - count) <= (mbap._len + 6)) && (mbap._pi ==0))
     {
       smbFrame * pmbFrame = getFreeBuffer();
-      if(pmbFrame == 0) break; // если нет свободгого буфера то прикращаем разбор
+      if(pmbFrame == 0) break; // if there is no free buffer then we reduce the parsing
       pmbFrame->nClient = nClient;
       pmbFrame->status = frameStatus::readyToSendRtu;
       pmbFrame->len = mbap._len + 6;
@@ -131,7 +131,7 @@ void cTcpSlave::task()
   yield();
   writeFrameClient();
   yield();
-  // Очистка буфферов
+  // Cleaning the buffers
   for(uint8_t i = 0; i < FRAME_COUNT; i++)
   {
     if(mbFrame[i].status != frameStatus::empty )
