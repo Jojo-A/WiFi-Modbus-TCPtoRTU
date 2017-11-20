@@ -36,7 +36,7 @@ void RtuMaster::task()
 
   switch(status)
   {
-    case 0: // Отправка пакета
+    case 0: // Sending a package
     {
       cTcpSlave::smbFrame * pmbFrame = TcpSlave.getReadyToSendRtuBuffer();
       if(pmbFrame)
@@ -59,7 +59,7 @@ void RtuMaster::task()
       }
       break;
     }
-    case 1: // Ожидане ответа
+    case 1: // Awaiting response
     {
       cTcpSlave::smbFrame * pmbFrame = TcpSlave.getWaitFromRtuBuffer();
       if (pmbFrame)
@@ -75,7 +75,7 @@ void RtuMaster::task()
         status = 0;
       break;
     }
-    case 2: // чтение ответа
+    case 2: // reading the answer
     {
       cTcpSlave::smbFrame * pmbFrame = TcpSlave.getWaitFromRtuBuffer();
       if (pmbFrame)
@@ -117,7 +117,7 @@ void RtuMaster::task()
   }
 }
 
-//Расчет CRC16
+// Calculation of CRC16
 uint16_t RtuMaster::CRC16(uint8_t *puchMsg, uint16_t usDataLen)
 {
 const uint8_t auchCRCHi[] = {
