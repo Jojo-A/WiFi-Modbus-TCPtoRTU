@@ -5,11 +5,7 @@
 #include "Arduino.h"
 #include "mbTCPslave.h"
 
-
 #define RTU_BUFFER_SIZE  264
-
-
-
 
 class RtuMaster
 {
