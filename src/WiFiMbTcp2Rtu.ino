@@ -14,7 +14,7 @@ void setup()
 {
   initESP();
   trace.begin();
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD);  // makes the serial communication crash!
 }
 
 void loop()
