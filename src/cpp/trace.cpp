@@ -1,7 +1,8 @@
 #include "..\h\trace.h"
 
 WiFiServer tcpTraceServer(23);
-
+extern char* ap_default_ssid;
+extern const char* ap_default_psk;
 /******************************************************************************/
 void cTcpTrace::begin()
 {
@@ -98,8 +99,8 @@ void cTcpTrace::menu()
     {
       if (! loadConfig(&station_ssid, &station_psk))
         {
-          station_ssid = "KGPA";
-          station_psk = "Kgpa1972";
+          station_ssid = ap_default_ssid;
+          station_psk = ap_default_psk;
           saveConfig(&station_ssid, &station_psk);
           println("Save Config");
         }
@@ -109,10 +110,11 @@ void cTcpTrace::menu()
       case 1:
       {
       println(String()+ "********************************************************************************");
-      println(String()+ "* 1. My IP adress: "+    String( WiFi.localIP()) );
-      println(String()+ "* 2. My SSID:      "+    station_ssid );
-      println(String()+ "* 3. My PSK:       "+    station_psk  );
+      println(String()+ "* 1. My IP address: "+ WiFi.localIP().toString());
+      println(String()+ "* 2. My SSID:       "+    station_ssid );
+      println(String()+ "* 3. My PSK:        "+    station_psk  );
       println(String()+ "* 0. Save config!   " );
+      
 
       menuState = 2;
       break;
@@ -202,10 +204,5 @@ void cTcpTrace::menu()
 
 
 }
-
-
-
-
-
 
 cTcpTrace trace;
