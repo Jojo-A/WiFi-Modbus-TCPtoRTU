@@ -6,10 +6,10 @@
 
 
 const char* ap_default_ssid = "esp8266_mb_gateway"; ///< Default SSID.
-const char* ap_default_psk = "esp8266esp8266"; ///< Default PSK.
+const char* ap_default_psk = "password"; ///< Default PSK.
 
-const char* ssid;// = "KGPA";
-const char* pass;// = "Kgpa1972";
+const char* ssid = "YOUR_SSID";
+const char* pass = "YOUR_WIFI_PASSWORD";
 const char* hostnameEsp = "mbTcp2Rtu";
 IPAddress apIP(192, 168, 1, 1);
 
@@ -75,8 +75,8 @@ void initESP (void)
     if(WiFi.status() == WL_CONNECTED)
     {
       // ... print IP Address
-//      Serial.print("IP address: ");
-//      Serial.println(WiFi.localIP());
+      Serial.print("IP address: ");
+      Serial.println(WiFi.localIP());
     }
     else
     {
@@ -145,7 +145,7 @@ bool loadConfig(String *ssid, String *pass)
   // If there is no second line: Some information is missing.
   if (pos == -1)
   {
-    Serial.println("Infvalid content.");
+    Serial.println("Invalid content.");
     Serial.println(content);
 
     return false;
