@@ -5,7 +5,7 @@
 #include "FS.h"
 
 
-const char* ap_default_ssid = "esp8266"; ///< Default SSID.
+const char* ap_default_ssid = "esp8266_mb_gateway"; ///< Default SSID.
 const char* ap_default_psk = "esp8266esp8266"; ///< Default PSK.
 
 const char* ssid;// = "KGPA";
@@ -19,7 +19,7 @@ void WiFiEvent(WiFiEvent_t event);
 int statusWifi = 0;
 
 /******************************************************************************/
-/* События     */
+/* Developments     */
 void initESP (void)
 {
   String station_ssid = "";
@@ -94,7 +94,7 @@ void initESP (void)
     }
 }
 /******************************************************************************/
-/* События     */
+/* Developments     */
 void WiFiEvent(WiFiEvent_t event) {
 
     switch(event) {
@@ -109,7 +109,7 @@ void WiFiEvent(WiFiEvent_t event) {
     }
 }
 /******************************************************************************/
-/* Чтение сида пида     */
+/* Reading sidewalk     */
 
 bool loadConfig(String *ssid, String *pass)
 {
@@ -162,7 +162,7 @@ bool loadConfig(String *ssid, String *pass)
 } // loadConfig
 
 /******************************************************************************/
-/* Сохранение сида пида     */
+/* Preserving the sidewalk     */
 bool saveConfig(String *ssid, String *pass)
 {
   // Open config file for writing.
