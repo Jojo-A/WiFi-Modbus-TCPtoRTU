@@ -17,7 +17,8 @@ void setup()
   Serial.begin(115200);
 }
 
-void loop() {
+void loop()
+{
 
   //trace.println("Cycl OK");
   TcpSlave.task();
