@@ -1,8 +1,11 @@
-#include "..\h\trace.h"
+#include ".\h\trace.h"
+#include "FS.h"
 
 WiFiServer tcpTraceServer(23);
-extern char* ap_default_ssid;
-extern const char* ap_default_psk;
+extern const char* ssid;
+extern const char* pass;
+extern String default_node_name;
+
 /******************************************************************************/
 void cTcpTrace::begin()
 {
@@ -18,7 +21,7 @@ void cTcpTrace::task(void)
     {
       if(tcpTraceClient) tcpTraceClient.stop();
       tcpTraceClient = tcpTraceServer.available();
-      println("Welcom to trace.");
+      println("Welcome to trace.");
     }
   }
   if (tcpTraceClient)
@@ -98,11 +101,11 @@ void cTcpTrace::menu()
   {
     case 0:
     {
-      if (! loadConfig(&station_ssid, &station_psk))
+      if (! loadConfig(&station_ssid, &station_psk, &station_name))
         {
-          station_ssid = ap_default_ssid;
-          station_psk = ap_default_psk;
-          station_name = ap_default_name;
+          station_ssid = ssid;
+          station_psk = pass;
+          station_name = default_node_name;
           saveConfig(&station_ssid, &station_psk, &station_name);
           println("Save Config");
         }
@@ -112,11 +115,13 @@ void cTcpTrace::menu()
       case 1:
       {
       println(String()+ "********************************************************************************");
-      println(String()+ "* 1. My IP address: "+ WiFi.localIP().toString());
-      println(String()+ "* 2. My SSID:       "+    station_ssid );
-      println(String()+ "* 3. My PSK:        "+    station_psk  );
-      println(String()+ "* 4. My Name:       "+    station_name  );
-      println(String()+ "* 0. Save config!   " );
+      println(String()+ "* My DHCP IP address:      "+ WiFi.localIP().toString());
+      println(String()+ "* (T) Target SSID:         "+    station_ssid);
+      println(String()+ "* (P) PSK for target SSID: "+    station_psk );
+      println(String()+ "* (N) Node Name:           "+    station_name);
+      println(String()+ "* (D) Delete config file(!)");
+      println(String()+ "* (S) Save config!");
+      println(String()+ "* (R) Restart");
       
       menuState = 2;
       break;
@@ -136,14 +141,20 @@ void cTcpTrace::menu()
           uint16_t comm = dataIn.charAt(0);
           switch (comm)
           {
-            case 0x31: { menuState = 10; break;}
-            case 0x32: { menuState = 20; print("Enter SSID: "); break; }
-            case 0x33: { menuState = 30; print("Enter PSK: "); break;}
-            case 0x34: { menuState = 40; print("Enter Name: "); break;}
-            case 0x30:
+            case 'T': { menuState = 20; print("Enter target SSID: "); break; }
+            case 'P': { menuState = 30; print("Enter PSK for target SSID: "); break;}
+            case 'N': { menuState = 40; print("Enter new node name: "); break;}
+            case 'R': { ESP.restart(); break;}
+            case 'S':
             { menuState = 0;
-              print("Saving config.... ");
-              saveConfig(&station_ssid, &station_psk);
+              println("Saving config...");
+              saveConfig(&station_ssid, &station_psk, &station_name);
+              break;
+            }
+            case 'D':
+            { menuState = 1;
+              if(SPIFFS.remove("/cl_conf.txt")) println("Config file successfully removed, please restart.");
+              else                              println("Config file could not be removed.");
               break;
             }
 
@@ -154,12 +165,6 @@ void cTcpTrace::menu()
           }
           dataIn = "";
         }
-      break;
-    }
-    case 10:
-    {
-      println("Good!!!" );
-      menuState = 1;
       break;
     }
 
@@ -197,6 +202,7 @@ void cTcpTrace::menu()
         menuState = 1;
       }
       break;
+    }
       
     case 40:
     {
@@ -216,13 +222,9 @@ void cTcpTrace::menu()
       break;
     }
 
-
-
     default:
       menuState = 0 ;
   }
-
-
 }
 
 cTcpTrace trace;
