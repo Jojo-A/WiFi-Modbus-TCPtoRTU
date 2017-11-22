@@ -92,6 +92,7 @@ void cTcpTrace::menu()
   static String dataInChar = "";
   static String station_ssid = "";
   static String station_psk = "";
+  static String station_name = "";
 
   switch (menuState)
   {
@@ -101,7 +102,8 @@ void cTcpTrace::menu()
         {
           station_ssid = ap_default_ssid;
           station_psk = ap_default_psk;
-          saveConfig(&station_ssid, &station_psk);
+          station_name = ap_default_name;
+          saveConfig(&station_ssid, &station_psk, &station_name);
           println("Save Config");
         }
         menuState=1;
@@ -113,9 +115,9 @@ void cTcpTrace::menu()
       println(String()+ "* 1. My IP address: "+ WiFi.localIP().toString());
       println(String()+ "* 2. My SSID:       "+    station_ssid );
       println(String()+ "* 3. My PSK:        "+    station_psk  );
+      println(String()+ "* 4. My Name:       "+    station_name  );
       println(String()+ "* 0. Save config!   " );
       
-
       menuState = 2;
       break;
     }
@@ -137,6 +139,7 @@ void cTcpTrace::menu()
             case 0x31: { menuState = 10; break;}
             case 0x32: { menuState = 20; print("Enter SSID: "); break; }
             case 0x33: { menuState = 30; print("Enter PSK: "); break;}
+            case 0x34: { menuState = 40; print("Enter Name: "); break;}
             case 0x30:
             { menuState = 0;
               print("Saving config.... ");
@@ -190,6 +193,23 @@ void cTcpTrace::menu()
       if (len != -1)
       {
         station_psk = dataIn.substring(0, len);
+        dataIn = "";
+        menuState = 1;
+      }
+      break;
+      
+    case 40:
+    {
+      while( available())
+      {
+        dataInChar = readString();
+        print(dataInChar);
+        dataIn += dataInChar;
+      }
+      int16_t len = dataIn.indexOf ("\r\n");
+      if (len != -1)
+      {
+        station_name = dataIn.substring(0, len);
         dataIn = "";
         menuState = 1;
       }
