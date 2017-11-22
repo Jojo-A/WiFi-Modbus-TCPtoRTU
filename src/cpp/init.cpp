@@ -3,14 +3,16 @@
 #include "..\h\mbTCPslave.h"
 #include "..\h\trace.h"
 #include "FS.h"
+#include <string.h>
 
 
-const char* ap_default_ssid = "esp8266_mb_gateway"; ///< Default SSID.
+const char* ap_default_ssid = "esp8266_mb_gateway_ap"; ///< Default SSID.
 const char* ap_default_psk = "password"; ///< Default PSK.
+const char* ap_default_name = "mbTcp2Rtu"; ///< Default PSK.
 
 const char* ssid = "YOUR_SSID";
 const char* pass = "YOUR_WIFI_PASSWORD";
-const char* hostnameEsp = "mbTcp2Rtu";
+const char* hostnameEsp = "mbTcp2Rtu_Gateway";
 IPAddress apIP(192, 168, 1, 1);
 
 
@@ -24,13 +26,15 @@ void initESP (void)
 {
   String station_ssid = "";
   String station_psk = "";
+  String station_name = "";
   delay(100);
 
   SPIFFS.begin();
-  if (! loadConfig(&station_ssid, &station_psk))
+  if (! loadConfig(&station_ssid, &station_psk, &station_name))
     {
       station_ssid = "";
       station_psk = "";
+      station_name = "";
 
       Serial.println("No WiFi connection information available.");
     }
@@ -111,7 +115,7 @@ void WiFiEvent(WiFiEvent_t event) {
 /******************************************************************************/
 /* Reading sidewalk     */
 
-bool loadConfig(String *ssid, String *pass)
+bool loadConfig(String *ssid, String *pass, String *name)
 {
   // open file for reading.
   File configFile = SPIFFS.open("/cl_conf.txt", "r");
@@ -127,22 +131,31 @@ bool loadConfig(String *ssid, String *pass)
   configFile.close();
 
   content.trim();
-
-  // Check if ther is a second line available.
-  int8_t pos = content.indexOf("\r\n");
+  
+  String new_line = "\r\n";
   uint8_t le = 2;
-  // check for linux and mac line ending.
+  
+  // Check if there is a second line available.
+  int8_t pos = content.indexOf(new_line);
   if (pos == -1)
   {
     le = 1;
-    pos = content.indexOf("\n");
+    // check for linux and mac line ending.
+    new_line = "\n";
+    pos = content.indexOf(new_line);
     if (pos == -1)
     {
-      pos = content.indexOf("\r");
+      new_line = "\r";
+      pos = content.indexOf(new_line);
+      // If there IS a second line, look if there is a third line:
+      // Check if there is a third line available.
+      if (pos != -1)
+      {
+        pos = content.indexOf(new_line, pos);
+      }
     }
   }
-
-  // If there is no second line: Some information is missing.
+  // If there is no second or third line: Some information is missing.
   if (pos == -1)
   {
     Serial.println("Invalid content.");
@@ -151,19 +164,25 @@ bool loadConfig(String *ssid, String *pass)
     return false;
   }
 
-  // Store SSID and PSK into string vars.
-  *ssid = content.substring(0, pos);
-  *pass = content.substring(pos + le);
+  // Store SSID string
+  *ssid = content.substring(0, content.indexOf(new_line));
+  pos = content.indexOf(new_line) + le;
+  // Store PSK in string
+  *pass = content.substring(pos, content.indexOf(new_line, pos));
+  pos = content.indexOf(new_line, pos) + le;
+  // Store name in string
+  *name = content.substring(pos, content.indexOf(new_line, pos));
 
   ssid->trim();
   pass->trim();
+  name->trim();
 
   return true;
 } // loadConfig
 
 /******************************************************************************/
 /* Preserving the sidewalk     */
-bool saveConfig(String *ssid, String *pass)
+bool saveConfig(String *ssid, String *pass, String *name)
 {
   // Open config file for writing.
   File configFile = SPIFFS.open("/cl_conf.txt", "w");
@@ -177,6 +196,7 @@ bool saveConfig(String *ssid, String *pass)
   // Save SSID and PSK.
   configFile.println(*ssid);
   configFile.println(*pass);
+  configFile.println(*name);
 
   configFile.close();
 
